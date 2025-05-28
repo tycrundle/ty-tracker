@@ -1,47 +1,49 @@
 import gspread
 import json
+import os
 from oauth2client.service_account import ServiceAccountCredentials
 
 # Authenticate with Google Sheets
+with open("creds.json") as f:
+    json_creds = json.load(f)
+
 scope = [
     "https://spreadsheets.google.com/feeds",
     "https://www.googleapis.com/auth/drive"
 ]
-
-with open("creds.json") as f:
-    creds_json = json.load(f)
-
-creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_json, scope)
+creds = ServiceAccountCredentials.from_json_keyfile_dict(json_creds, scope)
 client = gspread.authorize(creds)
 
-# Open the Google Sheet by URL
-sheet = client.open_by_url("https://docs.google.com/spreadsheets/d/1gLarCMGluthM7cbp4hSCMrDfjMwJHS1PsB8DzmX0pjc/edit")
+# Connect to the Google Sheet by key
+sheet = client.open_by_key("1gLarCMGluthM7cbp4hSCMrDfjMwJHS1PsB8DzmX0pjc")
 
-# Define tab enhancements
-enhancements = {
-    "Goals": ["Progress", "Priority"],
-    "To Do": ["Category", "Last Updated"],
-    "Notes": ["Tag"],
-    "Pets": ["Medication", "Vet Visit Date", "Follow-Up Needed"],
-    "Travel": ["Status", "Checklist Link"]
+# Define the tabs and headers to enforce
+tabs_and_headers = {
+    "Agenda": [
+        "Date", "Start Time", "End Time", "Title", "Details", "Location / Link",
+        "Category", "Status", "Reminder", "Recurring", "Confirmed?"
+    ],
+    "To-Do": ["Task", "Due Date", "Category", "Status", "Priority", "Notes"],
+    "Travel": [
+        "Trip Name", "Start Date", "End Date", "Location", "Flight/Hotel Info",
+        "Confirmation #", "Notes"
+    ],
+    "Notes": ["Title", "Content", "Created Date", "Tags"],
+    "Addresses": ["Name", "Street Address", "City", "State", "ZIP", "Notes"],
+    "Automation Logs": ["Timestamp", "Action", "Status", "Details", "Source"],
+    "Sync Log": ["Timestamp", "File", "Update Type", "Result", "Notes"]
 }
 
-for tab, new_columns in enhancements.items():
+# Iterate through and ensure all tabs exist with headers
+for tab, headers in tabs_and_headers.items():
     try:
-        ws = sheet.worksheet(tab)
-        data = ws.get_all_records()
-        headers = ws.row_values(1)
-
-        for col in new_columns:
-            if col not in headers:
-                headers.append(col)
-                for row in data:
-                    row[col] = ""
-
-        updated_data = [headers] + [[row.get(col, "") for col in headers] for row in data]
-        ws.clear()
-        ws.update("A1", updated_data)
-        print(f"✅ Updated tab: {tab}")
-
+        worksheet = sheet.worksheet(tab)
+        current_headers = worksheet.row_values(1)
+        if current_headers != headers:
+            worksheet.delete_rows(1)
+            worksheet.insert_row(headers, 1)
     except gspread.exceptions.WorksheetNotFound:
-        print(f"❌ Tab not found: {tab}")
+        worksheet = sheet.add_worksheet(title=tab, rows="100", cols=str(len(headers)))
+        worksheet.insert_row(headers, 1)
+
+print("✅ Success: All tabs verified and headers updated.")
