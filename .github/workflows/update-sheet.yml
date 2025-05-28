@@ -1,7 +1,7 @@
 name: Update Google Sheet
 
 on:
-  workflow_dispatch:  # This enables manual trigger from the Actions tab
+  workflow_dispatch:  # This enables manual runs
 
 jobs:
   update-sheet:
