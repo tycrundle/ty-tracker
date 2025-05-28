@@ -15,7 +15,7 @@ client = gspread.authorize(creds)
 sheet = client.open_by_url("https://docs.google.com/spreadsheets/d/1gLarCMGluthM7cbp4hSCMrDfjMwJHS1PsB8DzmX0pjc/edit?usp=sharing")
 
 # List of sheet names to fetch
-tabs = ["Agenda", "To-Do", "Travel", "Notes"]
+tab_names = ["Agenda", "Goals", "To Do", "Notes", "Pets", "Travel"]
 data = {}
 
 # Read all tabs into dictionary
