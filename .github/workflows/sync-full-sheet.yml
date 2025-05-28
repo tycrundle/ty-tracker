@@ -1,14 +1,13 @@
 name: Sync Full Google Sheet
 
 on:
-  workflow_dispatch:  # Manual trigger
+  workflow_dispatch:  # allows manual runs
   schedule:
-    - cron: "0 * * * *"  # Runs every hour
+    - cron: '0 8 * * *'  # runs every day at 8am UTC
 
 jobs:
   sync-full-sheet:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -16,7 +15,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
+          python-version: '3.10'
 
       - name: Install dependencies
         run: |
