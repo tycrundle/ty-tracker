@@ -1,4 +1,4 @@
-name: Update Google Sheet
+name: Update Google Sheet # updated
 
 on:
   workflow_dispatch:  # This enables manual runs
