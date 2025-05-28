@@ -1,0 +1,31 @@
+name: Sync Full Google Sheet
+
+on:
+  workflow_dispatch:  # Manual trigger
+  schedule:
+    - cron: "0 * * * *"  # Runs every hour
+
+jobs:
+  sync-full-sheet:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install gspread oauth2client
+
+      - name: Run sync script
+        env:
+          GOOGLE_SHEETS_CREDENTIALS: ${{ secrets.GOOGLE_SHEETS_CREDENTIALS }}
+        run: |
+          echo "$GOOGLE_SHEETS_CREDENTIALS" > creds.json
+          python sync_full_sheet.py
