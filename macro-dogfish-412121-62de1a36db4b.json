@@ -1,13 +1,1 @@
-{
-  "type": "service_account",
-  "project_id": "macro-dogfish-412121",
-  "private_key_id": "62de1a36db4bc13d396aa5fe692043f6b48bdb84",
-  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC9EZ+v/4XvRDdl\nmPMR2kFZSiCATVsiYtnA1qE/A3kk4WRuALu7J+0IYPeeG7mpvLUXZRC/uWoZAdi0\n7Rhy3aY9dbRnefkR5rlCnmUJKPr19FSGVNk2jxNksaixo5Z1OSzvmKrPIVRG8XQ5\nDYRAABzj+SrXkiXTbcjgdThfDKPhiQxnUB/I9wPivWW51aIxBMP0gNV2BUEHFZWs\n+Lu7qvLscv9as9pz5wG6cY7fVbTZKo58vY6MeAgYJP5eIYzZ0nmpyWtaQgdemFqp\nOqHrrL9EIZSPz2WPHBGLw9UZZfriDyoytxJz/omE0rg8gxC4Ky2ND5OKgSFJqxdQ\nJzMhUMP/AgMBAAECggEABAyKEm9S83ZPB2Z4oiO97YcYXhcKAhkC183g4yQUZpVL\nHM34N0BaI6lL9D9cwQVRDYC1FJ4IZyOye+Ft+hvEESHhrKugiWEbC5Gv0Tvm7/h9\nDOlpQ3FZ9XiWh8NcmAMS8sies9PfZauLFSO0dthpxfoSkE5JcBc0S5ZHEEYJhm1q\n81131RWulWJBawzz5WWJUntOlGw7C0TZmshqSR0+d1+/fL9Kt0Z55g4DRR9m7T0c\nwE/YB/0nEd7PKFhuC9ChfgCjMIm+4qfMAqXpayiSSJ4Snez4Xl9oqnWipj9KPtjU\n+UfRFW1ccuQE1cRyt/5jeRiEChFYDa18rbUPlMhGZQKBgQD1Zzd99VBsDyZx/nvm\nVfYff+NfHpnrPzcM3EFaTRV3rc73bQ0rVnnTJFn8dxZe9NmeRZsdXtSL7btFqryJ\nrcYVCKtqFAgE//L0qxIylgFcUWc6g8OgevvG97xqv3d077yNsXNWSJfMJPcAe6iU\nWCSMd2uvhceHOJFEslqUNnFQLQKBgQDFO6o+UTs4JSb+cAra5DCHc1CRqOVeFH9A\nvhuY976ByiN2pY0+7Q4eh4Qh7qVJ6z2Ds1UWSCT6qBwDdP9X8aXT3qdowUSaPJhT\nlI/YHH0RMq+MHdBvj6b8zuO8dAaxVULdyLZ9eGJ51xA1SMgoNSRd32C+EFQqKOWX\nTPOxdbTUWwKBgQCTO9I3aC9QJebTDfQYRgrc60Xnk9yVH+BPfvZWz1jJ7SX3nR4B\nmmiNHYo/xtNNNWo7Y1elT3gGXCO3sLBdij0F8aWmh04occe6s8i/QPCgCtb8bIG6\njw7wWUJaaXWqWwutl4GziupIOQVY7Ng/6IJFJIEfVgxYPMArjzZ5JhDmIQKBgQC+\nMBauGO6d6VV8rNYK1VfmhU//5XmoCuParnc2Pk+6IA2qb2GQeE7RKaREhDdm3Cxp\nPxihb9gYzNqWis9fImnhsCaGYTeh8ySAFBXRM0d2ugWFe4puyXsg9O+t3cRGZA0i\niFVREDEFhFjgyNoZy4TR8ID9RgmizeT2zQGA8hv5WQKBgQCNKPWiTVdO8vsZhfa6\nhysv7LSHypqK1QSZsc7FTKnTaGJm5JBSRll3x/bmClwh6CsVuS0YR++NaCU4LfDC\n0B2CLXheIw49HPikXOgM3u+1dl2gYwHbyeKvwRSjvRte0+NT9CImTQWDGANI+ga0\nwgwQi0bCQxWZhcW/6syBV4WQhQ==\n-----END PRIVATE KEY-----\n",
-  "client_email": "ty-tracker-service@macro-dogfish-412121.iam.gserviceaccount.com",
-  "client_id": "100738263422391244777",
-  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-  "token_uri": "https://oauth2.googleapis.com/token",
-  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/ty-tracker-service%40macro-dogfish-412121.iam.gserviceaccount.com",
-  "universe_domain": "googleapis.com"
-}
+
