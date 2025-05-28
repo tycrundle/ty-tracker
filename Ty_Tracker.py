@@ -29,38 +29,32 @@ tabs = {
     "Finances": ["Date", "Category", "Description", "Amount", "Notes"],
     "Fitness / Health": ["Date", "Activity", "Duration", "Notes"],
     "Work / Projects": ["Project", "Task", "Due Date", "Status", "Notes"],
-    "Birthdays / Anniversaries": ["Name", "Date", "Type", "Notes"],
-    "Contacts / Networking": ["Name", "Company", "Role", "Notes", "Follow-Up Date"],
-    "AI Requests": ["Date", "Request", "Status", "Response Notes"],
+    "Birthdays / Anniversaries": ["Name", "Date", "Type", "Gift Idea", "Notes"],
+    "Contacts / Networking": ["Name", "Company", "Role", "Contact Info", "Last Contacted", "Notes"],
+    "AI Requests": ["Date", "Request", "Status", "Response Summary", "Follow-Up?"],
     "Archive": ["Original Tab", "Date Archived", "Title", "Details", "Status"],
     "Logs": ["Timestamp", "Action", "Details"],
-    "Meta": ["Key", "Value", "Last Updated"]
+    "Meta": ["Key", "Value", "Last Updated"],
+    "Automation Logs": ["Date", "Script", "Outcome", "Details"],
+    "Sync Log": ["Date", "Action", "Status", "Notes"]
 }
 
-# 5. Create any missing tabs and initialize headers
+# 5. Create missing tabs and/or enforce headers
 for tab_name, headers in tabs.items():
     try:
         worksheet = sheet.worksheet(tab_name)
-        if not worksheet.get_all_values():
-            worksheet.append_row(headers)
+        current_headers = worksheet.row_values(1)
+        if current_headers != headers:
+            worksheet.delete_row(1)
+            worksheet.insert_row(headers, 1)
     except gspread.WorksheetNotFound:
         worksheet = sheet.add_worksheet(title=tab_name, rows=100, cols=len(headers))
-        worksheet.append_row(headers)
+        worksheet.insert_row(headers, 1)
 
-# 6. Optional: Append test row to Agenda tab to verify
-agenda = sheet.worksheet("Agenda")
-agenda.append_row([
-    "2025-05-28",        # Date
-    "12:00 PM",          # Start Time
-    "12:30 PM",          # End Time
-    "GitHub Action Test",# Title
-    "Row added via GitHub workflow",  # Details
-    "N/A",               # Location / Link
-    "Automation",        # Category
-    "Scheduled",         # Status
-    "None",              # Reminder
-    "No",                # Recurring
-    "Confirmed"          # Confirmed?
+# 6. Add test row to Sync Log
+log = sheet.worksheet("Sync Log")
+log.append_row([
+    "2025-05-28", "Ty_Tracker.py header sync", "Success", "All tabs confirmed and headers enforced"
 ])
 
-print("✅ Success: All tabs synced and test row added.")
+print("✅ Success: All tabs checked, headers updated, and sync logged.")
