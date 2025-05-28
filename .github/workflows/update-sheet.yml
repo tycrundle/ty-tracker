@@ -1,0 +1,30 @@
+name: Update Google Sheet
+
+on:
+  workflow_dispatch:  # allows manual triggering
+  schedule:
+    - cron: '0 * * * *'  # runs every hour
+
+jobs:
+  update-sheet:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        pip install gspread oauth2client
+
+    - name: Run script
+      env:
+        GOOGLE_SHEETS_CREDENTIALS: ${{ secrets.GOOGLE_SHEETS_CREDENTIALS }}
+      run: |
+        echo "$GOOGLE_SHEETS_CREDENTIALS" > creds.json
+        python Ty_Tracker.py
