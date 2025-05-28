@@ -2,30 +2,26 @@ import gspread
 import json
 from oauth2client.service_account import ServiceAccountCredentials
 
-# Set up scope and credentials
+# Load JSON credentials
+with open("creds.json") as f:
+    json_creds = json.load(f)
+
+# Authorize
 scope = [
     "https://spreadsheets.google.com/feeds",
     "https://www.googleapis.com/auth/drive"
 ]
-
-creds = ServiceAccountCredentials.from_json_keyfile_name("creds.json", scope)
+creds = ServiceAccountCredentials.from_json_keyfile_dict(json_creds, scope)
 client = gspread.authorize(creds)
 
-# Open the spreadsheet
-sheet = client.open_by_url("https://docs.google.com/spreadsheets/d/1gLarCMGluthM7cbp4hSCMrDfjMwJHS1PsB8DzmX0pjc/edit?usp=sharing")
+# Open the full Google Sheet by URL
+sheet = client.open_by_url("https://docs.google.com/spreadsheets/d/1gLarCMGluthM7cbp4hSCMrDfjMwJHS1PsB8DzmX0pjc/edit")
 
-# List of sheet names to fetch
-tab_names = ["Agenda", "Goals", "To Do", "Notes", "Pets", "Travel"]
-data = {}
+# List of known tabs to sync
+tabs = ["Agenda", "Goals", "To Do", "Notes", "Pets", "Travel"]
 
-# Read all tabs into dictionary
+# Fetch and display contents for each
 for tab in tabs:
     worksheet = sheet.worksheet(tab)
-    rows = worksheet.get_all_records()
-    data[tab] = rows
-
-# Write data to local JSON file
-with open("data/full_sheet.json", "w") as f:
-    json.dump(data, f, indent=2)
-
-print("✅ Full sheet synced and saved to data/full_sheet.json")
+    data = worksheet.get_all_records()
+    print(f"\n✅ Synced tab: {tab} — {len(data)} rows")
