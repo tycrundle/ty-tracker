@@ -11,18 +11,18 @@ sheet = client.open("Ty's Tracker")
 
 # === ALL HEADERS DEFINED ===
 expected_headers = {
-    "Agenda": ['Date', 'Start Time', 'End Time', 'Title', 'Details', 'Location / Link', 'Category', 'Status', 'Reminder', 'Recurring', 'Confirmed?'],
+    "Agenda": ['Date', 'Start Time', 'End Time', 'Title', 'Details', 'Location_Link', 'Category', 'Status', 'Reminder', 'Recurring', 'Confirmed?'],
     "GPT_Memory": ['Date', 'Log'],
-    "Addresses": ['Name', 'Street Address', 'City/State/ZIP', 'Notes'],
+    "Addresses": ['Name', 'Street Address', 'City_State_ZIP', 'Notes'],
     "Pending Uploads": ['Date', 'Original Tab', 'Field1', 'Field2', 'Field3', 'Field4', 'Field5', 'Field6', 'Status'],
-    "Shopping  Wishlist": ['Item', 'Category', 'Priority', 'Link', 'Notes'],
-    "Books  Media": ['Title', 'Type (Book/Show)', 'Status', 'Notes'],
+    "Shopping Wishlist": ['Item', 'Category', 'Priority', 'Link', 'Notes'],
+    "Books Media": ['Title', 'Type', 'Status', 'Notes'],
     "Finances": ['Date', 'Category', 'Description', 'Amount', 'Notes'],
-    "Fitness  Health": ['Date', 'Activity', 'Duration', 'Notes'],
-    "Work  Projects": ['Project', 'Task', 'Due Date', 'Status', 'Notes'],
-    "Birthdays  Anniversaries": ['Name', 'Date', 'Type', 'Notes'],
-    "Contacts  Networking": ['Name', 'Company', 'Role', 'Notes', 'Follow-Up Date'],
-    "AI Requests": ['Date', 'Request', 'Status', 'Response Notes'],
+    "Fitness Health": ['Date', 'Activity', 'Duration', 'Notes'],
+    "Work Projects": ['Project', 'Task', 'Due Date', 'Status', 'Notes'],
+    "Birthdays Anniversaries": ['Name', 'Date', 'Type', 'Gift Idea', 'Notes'],
+    "Contacts Networking": ['Name', 'Company', 'Role', 'Contact Info', 'Last Contacted', 'Notes'],
+    "AI Requests": ['Date', 'Request', 'Status', 'Response Summary', 'Follow-Up?'],
     "Archive": ['Original Tab', 'Date Archived', 'Title', 'Details', 'Status'],
     "Logs": ['Timestamp', 'Action', 'Details'],
     "Meta": ['Key', 'Value', 'Last Updated'],
@@ -31,8 +31,8 @@ expected_headers = {
     "Pets": ['Name', 'Type', 'Care Task', 'Due Date', 'Notes'],
     "Travel": ['Trip', 'Start Date', 'End Date', 'Details', 'Location', 'Status'],
     "To-Do": ['Task', 'Due Date', 'Priority', 'Category', 'Status', 'Notes'],
-    "Automation Logs": ['Timestamp', 'Trigger', 'Script', 'Result'],
-    "Sync Log": ['Timestamp', 'Status', 'Updated Tabs', 'Notes']
+    "Automation Logs": ['Date', 'Script', 'Outcome', 'Details'],
+    "Sync Log": ['Date', 'Action', 'Status', 'Notes']
 }
 
 # === VALIDATION ===
