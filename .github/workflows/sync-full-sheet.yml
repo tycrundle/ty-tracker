@@ -8,6 +8,9 @@ on:
 jobs:
   sync-full-sheet:
     runs-on: ubuntu-latest
+    env:
+      GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -21,11 +24,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install gspread oauth2client
-
-      - name: Create credentials file
-        env:
-          GOOGLE_SHEETS_CREDENTIALS: ${{ secrets.GOOGLE_SHEETS_CREDENTIALS }}
-        run: echo "$GOOGLE_SHEETS_CREDENTIALS" > credentials.json
 
       - name: Stage GPT logs to Pending Uploads
         run: python prepare_pending_uploads.py
