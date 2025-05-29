@@ -39,7 +39,7 @@ destination_tabs = {
 pending_ws = sheet.worksheet("Pending Uploads")
 pending_data = pending_ws.get_all_records()
 
-for i, row in enumerate(pending_data, start=2):
+for i, row in enumerate(pending_data, start=2):  # skip header row
     if row['Status'].strip().lower() != "pending":
         continue
 
@@ -59,4 +59,9 @@ for i, row in enumerate(pending_data, start=2):
 
 # === LOG SYNC ===
 sync_log = sheet.worksheet("Sync Log")
-sync_log.append_row([datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "sync_full_sheet.py", "Success", "Processed all pending uploads"])
+sync_log.append_row([
+    datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    "Success",
+    ", ".join(destination_tabs.keys()),
+    "Processed all pending uploads"
+])
