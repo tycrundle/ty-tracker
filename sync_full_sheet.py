@@ -25,14 +25,21 @@ destination_tabs = {
     "Contacts  Networking": ["Name", "Company", "Role", "Notes", "Follow-Up Date"],
     "Travel": ["Trip", "Start Date", "End Date", "Details", "Location", "Status"],
     "Pets": ["Name", "Type", "Care Task", "Due Date", "Notes"],
-    "Goals": ["Goal", "Start Date", "Target Date", "Progress", "Notes"]
+    "Goals": ["Goal", "Start Date", "Target Date", "Progress", "Notes"],
+    "AI Requests": ["Date", "Request", "Status", "Response Notes"],
+    "Archive": ["Original Tab", "Date Archived", "Title", "Details", "Status"],
+    "Logs": ["Timestamp", "Action", "Details"],
+    "Meta": ["Key", "Value", "Last Updated"],
+    "Automation Logs": ["Timestamp", "Trigger", "Script", "Result"],
+    "Sync Log": ["Timestamp", "Status", "Updated Tabs", "Notes"],
+    "GPT_Memory": ["Date", "Log"]
 }
 
 # === PROCESS PENDING UPLOADS ===
 pending_ws = sheet.worksheet("Pending Uploads")
 pending_data = pending_ws.get_all_records()
 
-for i, row in enumerate(pending_data, start=2):  # skip header
+for i, row in enumerate(pending_data, start=2):
     if row['Status'].strip().lower() != "pending":
         continue
 
