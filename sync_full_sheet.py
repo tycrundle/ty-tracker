@@ -3,17 +3,21 @@ from datetime import datetime
 from oauth2client.service_account import ServiceAccountCredentials
 from sheet_schema import tab_schemas
 
+# === AUTH ===
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
 client = gspread.authorize(creds)
 
+# === SHEET ===
 sheet = client.open("Ty's Tracker")
 pending_ws = sheet.worksheet("Pending Uploads")
 sync_log = sheet.worksheet("Sync Log")
 pending_data = pending_ws.get_all_records()
 
+# === PROCESS PENDING UPLOADS ===
 for i, row in enumerate(pending_data, start=2):
-    if row['Status'].strip().lower() != "pending":
+    status = row.get('Status', '').strip().lower()
+    if status != "pending":
         continue
 
     tab = row['Original Tab'].strip()
@@ -26,13 +30,14 @@ for i, row in enumerate(pending_data, start=2):
         ws = sheet.worksheet(tab)
         headers = tab_schemas[tab]
         row_data = [row.get(f"Field{j+1}", "") for j in range(len(headers))]
-        row_data = row_data[:len(headers)]  # safety
+        row_data = row_data[:len(headers)]  # Safety: truncate extra fields
         ws.append_row(row_data)
         pending_ws.update_cell(i, 9, "Synced")
     except Exception as e:
         pending_ws.update_cell(i, 9, f"Error: {str(e)}")
         sync_log.append_row([datetime.now().isoformat(), "sync_full_sheet.py", "Error", str(e)])
 
+# === LOG SYNC ===
 sync_log.append_row([
     datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     "sync_full_sheet.py",
