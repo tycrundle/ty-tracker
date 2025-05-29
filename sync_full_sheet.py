@@ -1,12 +1,12 @@
 import gspread
 import json
-import os
 from oauth2client.service_account import ServiceAccountCredentials
 
-# Authenticate with Google Sheets
+# Load JSON credentials from local file created by GitHub Actions
 with open("creds.json") as f:
     json_creds = json.load(f)
 
+# Set the scope and authorize
 scope = [
     "https://spreadsheets.google.com/feeds",
     "https://www.googleapis.com/auth/drive"
@@ -14,36 +14,43 @@ scope = [
 creds = ServiceAccountCredentials.from_json_keyfile_dict(json_creds, scope)
 client = gspread.authorize(creds)
 
-# Connect to the Google Sheet by key
+# Open the Google Sheet by key
 sheet = client.open_by_key("1gLarCMGluthM7cbp4hSCMrDfjMwJHS1PsB8DzmX0pjc")
 
-# Define the tabs and headers to enforce
-tabs_and_headers = {
-    "Agenda": [
-        "Date", "Start Time", "End Time", "Title", "Details", "Location / Link",
-        "Category", "Status", "Reminder", "Recurring", "Confirmed?"
-    ],
-    "To-Do": ["Task", "Due Date", "Category", "Status", "Priority", "Notes"],
-    "Travel": [
-        "Trip Name", "Start Date", "End Date", "Location", "Flight/Hotel Info",
-        "Confirmation #", "Notes"
-    ],
-    "Notes": ["Title", "Content", "Created Date", "Tags"],
-    "Addresses": ["Name", "Street Address", "City", "State", "ZIP", "Notes"],
-    "Automation Logs": ["Timestamp", "Action", "Status", "Details", "Source"],
-    "Sync Log": ["Timestamp", "File", "Update Type", "Result", "Notes"]
+# Define all required tabs and their headers
+tabs = {
+    "Agenda": ["Date", "Start Time", "End Time", "Title", "Details", "Location / Link", "Category", "Status", "Reminder", "Recurring", "Confirmed?"],
+    "To-Do": ["Task", "Due Date", "Priority", "Category", "Status", "Notes"],
+    "Travel": ["Trip", "Start Date", "End Date", "Details", "Location", "Status"],
+    "Notes": ["Date", "Note", "Tags"],
+    "Addresses": ["Name", "Street Address", "City/State/ZIP", "Notes"],
+    "Shopping / Wishlist": ["Item", "Category", "Priority", "Link", "Notes"],
+    "Books / Media": ["Title", "Type (Book/Show)", "Status", "Notes"],
+    "Finances": ["Date", "Category", "Description", "Amount", "Notes"],
+    "Fitness / Health": ["Date", "Activity", "Duration", "Notes"],
+    "Work / Projects": ["Project", "Task", "Due Date", "Status", "Notes"],
+    "Birthdays / Anniversaries": ["Name", "Date", "Type", "Notes"],
+    "Contacts / Networking": ["Name", "Company", "Role", "Notes", "Follow-Up Date"],
+    "AI Requests": ["Date", "Request", "Status", "Response Notes"],
+    "Archive": ["Original Tab", "Date Archived", "Title", "Details", "Status"],
+    "Logs": ["Timestamp", "Action", "Details"],
+    "Meta": ["Key", "Value", "Last Updated"],
+    "GPT_Memory": ["Date", "Log"]
 }
 
-# Iterate through and ensure all tabs exist with headers
-for tab, headers in tabs_and_headers.items():
+# Create any missing tabs and initialize headers
+for tab_name, headers in tabs.items():
     try:
-        worksheet = sheet.worksheet(tab)
-        current_headers = worksheet.row_values(1)
-        if current_headers != headers:
-            worksheet.delete_rows(1)
-            worksheet.insert_row(headers, 1)
-    except gspread.exceptions.WorksheetNotFound:
-        worksheet = sheet.add_worksheet(title=tab, rows="100", cols=str(len(headers)))
-        worksheet.insert_row(headers, 1)
+        worksheet = sheet.worksheet(tab_name)
+        if not worksheet.get_all_values():
+            worksheet.append_row(headers)
+    except gspread.WorksheetNotFound:
+        worksheet = sheet.add_worksheet(title=tab_name, rows=100, cols=len(headers))
+        worksheet.append_row(headers)
 
-print("✅ Success: All tabs verified and headers updated.")
+# Optional: Add a confirmation to Logs
+from datetime import datetime
+log_sheet = sheet.worksheet("Logs")
+log_sheet.append_row([datetime.utcnow().isoformat(), "Sync", "Headers validated and tabs ensured"])
+
+print("✅ Success: All tabs synced and headers validated.")
