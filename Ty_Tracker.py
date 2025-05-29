@@ -36,7 +36,8 @@ tabs = {
     "Logs": ["Timestamp", "Action", "Details"],
     "Meta": ["Key", "Value", "Last Updated"],
     "Automation Logs": ["Date", "Script", "Outcome", "Details"],
-    "Sync Log": ["Date", "Action", "Status", "Notes"]
+    "Sync Log": ["Date", "Action", "Status", "Notes"],
+    "GPT_Memory": ["Date", "Log"]
 }
 
 # 5. Create missing tabs and/or enforce headers
