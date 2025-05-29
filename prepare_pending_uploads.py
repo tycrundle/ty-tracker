@@ -16,7 +16,7 @@ pending_ws = sheet.worksheet("Pending Uploads")
 header_map = {
     "To-Do": ["Task", "Due Date", "Priority", "Category", "Status"],
     "Notes": ["Date", "Note", "Tags"],
-    "Addresses": ["Name", "Street Address", "City/State/ZIP", "Notes"],
+    "Addresses": ["Name", "Street Address", "City_State_ZIP", "Notes"],
     "Birthdays  Anniversaries": ["Name", "Date", "Type", "Notes"],
     "Agenda": ["Date", "Title"],
     "Goals": ["Goal", "Start Date", "Target Date", "Progress", "Notes"],
@@ -47,10 +47,23 @@ for i, row in enumerate(memory_data, start=2):
     if "[Processed]" in log:
         continue
 
-    handled = False
-
-    def process(tag, tab_name):
-        nonlocal handled
+    for tag, tab_name in {
+        "[TO-DO]": "To-Do",
+        "[NOTE]": "Notes",
+        "[ADDRESS]": "Addresses",
+        "[BIRTHDAY]": "Birthdays  Anniversaries",
+        "[REMINDER]": "Agenda",
+        "[GOAL]": "Goals",
+        "[CONTACT]": "Contacts  Networking",
+        "[MEDIA]": "Books  Media",
+        "[FITNESS]": "Fitness  Health",
+        "[SHOP]": "Shopping  Wishlist",
+        "[PROJECT]": "Work  Projects",
+        "[TRAVEL]": "Travel",
+        "[PET]": "Pets",
+        "[FINANCE]": "Finances",
+        "[AI]": "AI Requests"
+    }.items():
         if tag in log:
             fields = log.replace(tag, "").strip().split(" | ")
             new_rows.append(create_row(date, tab_name, fields))
@@ -58,31 +71,18 @@ for i, row in enumerate(memory_data, start=2):
                 'range': f"B{i}",
                 'values': [[f"[Processed] {log}"]]
             })
-            handled = True
+            break  # Stop after first match
 
-    process("[TO-DO]", "To-Do")
-    process("[NOTE]", "Notes")
-    process("[ADDRESS]", "Addresses")
-    process("[BIRTHDAY]", "Birthdays  Anniversaries")
-    process("[REMINDER]", "Agenda")
-    process("[GOAL]", "Goals")
-    process("[CONTACT]", "Contacts  Networking")
-    process("[MEDIA]", "Books  Media")
-    process("[FITNESS]", "Fitness  Health")
-    process("[SHOP]", "Shopping  Wishlist")
-    process("[PROJECT]", "Work  Projects")
-    process("[TRAVEL]", "Travel")
-    process("[PET]", "Pets")
-    process("[FINANCE]", "Finances")
-    process("[AI]", "AI Requests")
-
-# === APPEND TO PENDING ===
+# === APPEND TO PENDING UPLOADS ===
 for row in new_rows:
     pending_ws.append_row(row)
 
 # === BATCH UPDATE MEMORY ===
 if update_requests:
-    memory_ws.batch_update([{'range': u['range'], 'values': u['values']} for u in update_requests])
+    memory_ws.batch_update([{
+        'range': u['range'],
+        'values': u['values']
+    } for u in update_requests])
 
 # === LOG ===
 sheet.worksheet("Sync Log").append_row([
