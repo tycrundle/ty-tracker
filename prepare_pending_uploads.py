@@ -31,15 +31,15 @@ header_map = {
     "AI Requests": ["Request", "Status", "Response Notes"]
 }
 
-# === HELPER TO BUILD ROWS ===
 def create_row(date, tab, fields):
     header_fields = header_map.get(tab, [])
     full_fields = [date, tab] + fields[:len(header_fields)] + [""] * (len(header_fields) - len(fields))
     return full_fields + ["", "Pending"]
 
-# === LOAD MEMORY LOGS ===
+# === PROCESS MEMORY ===
 memory_data = memory_ws.get_all_records()
 new_rows = []
+update_requests = []
 
 for i, row in enumerate(memory_data, start=2):
     log = row["Log"]
@@ -47,94 +47,45 @@ for i, row in enumerate(memory_data, start=2):
     if "[Processed]" in log:
         continue
 
-    entry_handled = False
+    handled = False
 
-    # === AUTO-TAG PARSERS ===
-    if "[TO-DO]" in log:
-        fields = log.replace("[TO-DO]", "").strip().split(" | ")
-        new_rows.append(create_row(date, "To-Do", fields))
-        entry_handled = True
+    def process(tag, tab_name):
+        nonlocal handled
+        if tag in log:
+            fields = log.replace(tag, "").strip().split(" | ")
+            new_rows.append(create_row(date, tab_name, fields))
+            update_requests.append({
+                'range': f"B{i}",
+                'values': [[f"[Processed] {log}"]]
+            })
+            handled = True
 
-    elif "[NOTE]" in log:
-        fields = log.replace("[NOTE]", "").strip().split(" | ")
-        new_rows.append(create_row(date, "Notes", fields))
-        entry_handled = True
+    process("[TO-DO]", "To-Do")
+    process("[NOTE]", "Notes")
+    process("[ADDRESS]", "Addresses")
+    process("[BIRTHDAY]", "Birthdays  Anniversaries")
+    process("[REMINDER]", "Agenda")
+    process("[GOAL]", "Goals")
+    process("[CONTACT]", "Contacts  Networking")
+    process("[MEDIA]", "Books  Media")
+    process("[FITNESS]", "Fitness  Health")
+    process("[SHOP]", "Shopping  Wishlist")
+    process("[PROJECT]", "Work  Projects")
+    process("[TRAVEL]", "Travel")
+    process("[PET]", "Pets")
+    process("[FINANCE]", "Finances")
+    process("[AI]", "AI Requests")
 
-    elif "[ADDRESS]" in log:
-        fields = log.replace("[ADDRESS]", "").strip().split(" | ")
-        new_rows.append(create_row(date, "Addresses", fields))
-        entry_handled = True
-
-    elif "[BIRTHDAY]" in log:
-        fields = log.replace("[BIRTHDAY]", "").strip().split(" | ")
-        new_rows.append(create_row(date, "Birthdays  Anniversaries", fields))
-        entry_handled = True
-
-    elif "[REMINDER]" in log:
-        fields = log.replace("[REMINDER]", "").strip().split(" | ")
-        new_rows.append(create_row(date, "Agenda", fields))
-        entry_handled = True
-
-    elif "[GOAL]" in log:
-        fields = log.replace("[GOAL]", "").strip().split(" | ")
-        new_rows.append(create_row(date, "Goals", fields))
-        entry_handled = True
-
-    elif "[CONTACT]" in log:
-        fields = log.replace("[CONTACT]", "").strip().split(" | ")
-        new_rows.append(create_row(date, "Contacts  Networking", fields))
-        entry_handled = True
-
-    elif "[MEDIA]" in log:
-        fields = log.replace("[MEDIA]", "").strip().split(" | ")
-        new_rows.append(create_row(date, "Books  Media", fields))
-        entry_handled = True
-
-    elif "[FITNESS]" in log:
-        fields = log.replace("[FITNESS]", "").strip().split(" | ")
-        new_rows.append(create_row(date, "Fitness  Health", fields))
-        entry_handled = True
-
-    elif "[SHOP]" in log:
-        fields = log.replace("[SHOP]", "").strip().split(" | ")
-        new_rows.append(create_row(date, "Shopping  Wishlist", fields))
-        entry_handled = True
-
-    elif "[PROJECT]" in log:
-        fields = log.replace("[PROJECT]", "").strip().split(" | ")
-        new_rows.append(create_row(date, "Work  Projects", fields))
-        entry_handled = True
-
-    elif "[TRAVEL]" in log:
-        fields = log.replace("[TRAVEL]", "").strip().split(" | ")
-        new_rows.append(create_row(date, "Travel", fields))
-        entry_handled = True
-
-    elif "[PET]" in log:
-        fields = log.replace("[PET]", "").strip().split(" | ")
-        new_rows.append(create_row(date, "Pets", fields))
-        entry_handled = True
-
-    elif "[FINANCE]" in log:
-        fields = log.replace("[FINANCE]", "").strip().split(" | ")
-        new_rows.append(create_row(date, "Finances", fields))
-        entry_handled = True
-
-    elif "[AI]" in log:
-        fields = log.replace("[AI]", "").strip().split(" | ")
-        new_rows.append(create_row(date, "AI Requests", fields))
-        entry_handled = True
-
-    if entry_handled:
-        memory_ws.update_cell(i, 2, f"[Processed] {log}")
-
-# === STAGE TO PENDING UPLOADS ===
+# === APPEND TO PENDING ===
 for row in new_rows:
     pending_ws.append_row(row)
 
-# === LOG RESULT ===
-sync_log = sheet.worksheet("Sync Log")
-sync_log.append_row([
+# === BATCH UPDATE MEMORY ===
+if update_requests:
+    memory_ws.batch_update([{'range': u['range'], 'values': u['values']} for u in update_requests])
+
+# === LOG ===
+sheet.worksheet("Sync Log").append_row([
     datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     "prepare_pending_uploads.py",
     "Success",
