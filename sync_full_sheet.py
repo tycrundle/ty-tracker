@@ -2,63 +2,61 @@ import os
 import json
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+from datetime import datetime
+from sheet_schema import tab_schemas
 
-# Define the required scopes
+# Use GitHub Secret stored in the environment
 scope = [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive"
 ]
 
-# Load credentials from GitHub Secret passed as an environment variable
 creds_dict = json.loads(os.environ["GOOGLE_CREDENTIALS"])
 creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
-
-# Authorize gspread with the credentials
 client = gspread.authorize(creds)
 
-import gspread
-from datetime import datetime
-from oauth2client.service_account import ServiceAccountCredentials
-from sheet_schema import tab_schemas
+# Connect to your sheet
+SHEET_NAME = "Ty's Tracker"
+sheet = client.open(SHEET_NAME)
 
-# === AUTH ===
-scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
-client = gspread.authorize(creds)
+# Open required tabs
+pending_tab = sheet.worksheet("Pending Uploads")
+log_tab = sheet.worksheet("Sync Log")
+archive_tab = sheet.worksheet("Archive")
 
-# === SHEET ===
-sheet = client.open("Ty's Tracker")
-pending_ws = sheet.worksheet("Pending Uploads")
-sync_log = sheet.worksheet("Sync Log")
-pending_data = pending_ws.get_all_records()
+# Get all pending entries
+pending_data = pending_tab.get_all_values()
+headers = pending_data[0]
+entries = pending_data[1:]
 
-# === PROCESS PENDING UPLOADS ===
-for i, row in enumerate(pending_data, start=2):
-    status = row.get('Status', '').strip().lower()
-    if status != "pending":
+synced = []
+archived = []
+now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+for row in entries:
+    if not any(row):  # skip blank rows
         continue
 
-    tab = row['Original Tab'].strip()
-    if tab not in tab_schemas:
-        pending_ws.update_cell(i, 9, "Error: Unknown Tab")
-        sync_log.append_row([datetime.now().isoformat(), "sync_full_sheet.py", "Error", f"Unknown tab: {tab}"])
-        continue
+    date, target_tab, *fields = row
+    schema = tab_schemas.get(target_tab)
+    if schema and len(fields) >= len(schema):
+        try:
+            tab = sheet.worksheet(target_tab)
+            tab.append_row(fields[:len(schema)], value_input_option="USER_ENTERED")
+            archived.append([target_tab, now] + fields[:3] + ["Synced"])
+            synced.append(row)
+        except Exception as e:
+            log_tab.append_row([now, "sync_full_sheet.py", "Error", str(e)])
 
-    try:
-        ws = sheet.worksheet(tab)
-        headers = tab_schemas[tab]
-        row_data = [row.get(f"Field{j+1}", "") for j in range(len(headers))]
-        row_data = row_data[:len(headers)]  # Safety: truncate extra fields
-        ws.append_row(row_data)
-        pending_ws.update_cell(i, 9, "Synced")
-    except Exception as e:
-        pending_ws.update_cell(i, 9, f"Error: {str(e)}")
-        sync_log.append_row([datetime.now().isoformat(), "sync_full_sheet.py", "Error", str(e)])
+# Rewrite Pending Uploads without synced rows
+if synced:
+    remaining = [headers] + [row for row in entries if row not in synced]
+    pending_tab.clear()
+    pending_tab.append_rows(remaining, value_input_option="USER_ENTERED")
 
-# === LOG SYNC ===
-sync_log.append_row([
-    datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-    "sync_full_sheet.py",
-    "Success",
-    "Processed all pending uploads"
-])
+# Archive entries
+if archived:
+    archive_tab.append_rows(archived, value_input_option="USER_ENTERED")
+
+# Log result
+log_tab.append_row([now, "sync_full_sheet.py", "Success", f"Processed {len(synced)} entries"])
