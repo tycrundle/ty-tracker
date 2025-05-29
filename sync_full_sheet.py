@@ -1,3 +1,21 @@
+import os
+import json
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+
+# Define the required scopes
+scope = [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive"
+]
+
+# Load credentials from GitHub Secret passed as an environment variable
+creds_dict = json.loads(os.environ["GOOGLE_CREDENTIALS"])
+creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+
+# Authorize gspread with the credentials
+client = gspread.authorize(creds)
+
 import gspread
 from datetime import datetime
 from oauth2client.service_account import ServiceAccountCredentials
