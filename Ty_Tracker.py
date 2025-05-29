@@ -9,7 +9,7 @@ client = gspread.authorize(creds)
 # === OPEN SHEET ===
 sheet = client.open("Ty's Tracker")
 
-# === EXPECTED HEADERS FOR ALL TABS ===
+# === ALL HEADERS DEFINED ===
 expected_headers = {
     "Agenda": ['Date', 'Start Time', 'End Time', 'Title', 'Details', 'Location / Link', 'Category', 'Status', 'Reminder', 'Recurring', 'Confirmed?'],
     "GPT_Memory": ['Date', 'Log'],
@@ -35,7 +35,7 @@ expected_headers = {
     "Sync Log": ['Timestamp', 'Status', 'Updated Tabs', 'Notes']
 }
 
-# === VALIDATE TAB STRUCTURE ===
+# === VALIDATION ===
 for tab_name, expected_cols in expected_headers.items():
     try:
         ws = sheet.worksheet(tab_name)
