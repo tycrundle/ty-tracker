@@ -3,10 +3,12 @@ from datetime import datetime
 from oauth2client.service_account import ServiceAccountCredentials
 from sheet_schema import tab_schemas, category_tag_map, get_field_count
 
+# === AUTH ===
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
 client = gspread.authorize(creds)
 
+# === SHEET ===
 sheet = client.open("Ty's Tracker")
 memory_ws = sheet.worksheet("GPT_Memory")
 pending_ws = sheet.worksheet("Pending Uploads")
@@ -28,14 +30,19 @@ for i, row in enumerate(memory_data, start=2):
             if total_fields == 0:
                 sync_log.append_row([datetime.now().isoformat(), "prepare_pending_uploads.py", "Error", f"Unknown tab: {tab} for tag: {tag}"])
                 continue
-            padded = parts + [""] * (total_fields - len(parts))
-            new_rows.append([row["Date"], tab] + padded[:6] + ["Pending"])
+
+            # Fixed padding logic: 6 fields max, padded if fewer
+            padded = parts + [""] * max(0, 6 - len(parts))
+            row_fields = padded[:6]
+            new_rows.append([row["Date"], tab] + row_fields + ["Pending"])
             memory_ws.update_cell(i, 2, f"[Processed] {log}")
             matched = True
             break
+
     if not matched:
         sync_log.append_row([datetime.now().isoformat(), "prepare_pending_uploads.py", "Skipped", f"Unrecognized tag: {log}"])
 
+# === Add to Pending Uploads ===
 for row in new_rows:
     try:
         pending_ws.append_row(row)
