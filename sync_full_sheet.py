@@ -1,56 +1,55 @@
 import gspread
-import json
+from datetime import datetime
 from oauth2client.service_account import ServiceAccountCredentials
 
-# Load JSON credentials from local file created by GitHub Actions
-with open("creds.json") as f:
-    json_creds = json.load(f)
-
-# Set the scope and authorize
-scope = [
-    "https://spreadsheets.google.com/feeds",
-    "https://www.googleapis.com/auth/drive"
-]
-creds = ServiceAccountCredentials.from_json_keyfile_dict(json_creds, scope)
+# === AUTH SETUP ===
+scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
 client = gspread.authorize(creds)
 
-# Open the Google Sheet by key
-sheet = client.open_by_key("1gLarCMGluthM7cbp4hSCMrDfjMwJHS1PsB8DzmX0pjc")
+# === OPEN SHEET ===
+sheet = client.open("Ty's Tracker")
 
-# Define all required tabs and their headers
-tabs = {
+# === DESTINATION TAB FIELD MAP ===
+destination_tabs = {
+    "Addresses": ["Name", "Street Address", "City/State/ZIP", "Notes"],
+    "Birthdays  Anniversaries": ["Name", "Date", "Type", "Notes"],
     "Agenda": ["Date", "Start Time", "End Time", "Title", "Details", "Location / Link", "Category", "Status", "Reminder", "Recurring", "Confirmed?"],
     "To-Do": ["Task", "Due Date", "Priority", "Category", "Status", "Notes"],
-    "Travel": ["Trip", "Start Date", "End Date", "Details", "Location", "Status"],
-    "Notes": ["Date", "Note", "Tags"],
-    "Addresses": ["Name", "Street Address", "City/State/ZIP", "Notes"],
-    "Shopping / Wishlist": ["Item", "Category", "Priority", "Link", "Notes"],
-    "Books / Media": ["Title", "Type (Book/Show)", "Status", "Notes"],
     "Finances": ["Date", "Category", "Description", "Amount", "Notes"],
-    "Fitness / Health": ["Date", "Activity", "Duration", "Notes"],
-    "Work / Projects": ["Project", "Task", "Due Date", "Status", "Notes"],
-    "Birthdays / Anniversaries": ["Name", "Date", "Type", "Notes"],
-    "Contacts / Networking": ["Name", "Company", "Role", "Notes", "Follow-Up Date"],
-    "AI Requests": ["Date", "Request", "Status", "Response Notes"],
-    "Archive": ["Original Tab", "Date Archived", "Title", "Details", "Status"],
-    "Logs": ["Timestamp", "Action", "Details"],
-    "Meta": ["Key", "Value", "Last Updated"],
-    "GPT_Memory": ["Date", "Log"]
+    "Books  Media": ["Title", "Type (Book/Show)", "Status", "Notes"],
+    "Notes": ["Date", "Note", "Tags"],
+    "Shopping  Wishlist": ["Item", "Category", "Priority", "Link", "Notes"],
+    "Fitness  Health": ["Date", "Activity", "Duration", "Notes"],
+    "Work  Projects": ["Project", "Task", "Due Date", "Status", "Notes"],
+    "Contacts  Networking": ["Name", "Company", "Role", "Notes", "Follow-Up Date"],
+    "Travel": ["Trip", "Start Date", "End Date", "Details", "Location", "Status"],
+    "Pets": ["Name", "Type", "Care Task", "Due Date", "Notes"],
+    "Goals": ["Goal", "Start Date", "Target Date", "Progress", "Notes"]
 }
 
-# Create any missing tabs and initialize headers
-for tab_name, headers in tabs.items():
+# === PROCESS PENDING UPLOADS ===
+pending_ws = sheet.worksheet("Pending Uploads")
+pending_data = pending_ws.get_all_records()
+
+for i, row in enumerate(pending_data, start=2):  # skip header
+    if row['Status'].strip().lower() != "pending":
+        continue
+
+    tab_name = row['Original Tab'].strip()
+    if tab_name not in destination_tabs:
+        pending_ws.update_cell(i, 9, "Error: Unknown Tab")
+        continue
+
     try:
-        worksheet = sheet.worksheet(tab_name)
-        if not worksheet.get_all_values():
-            worksheet.append_row(headers)
-    except gspread.WorksheetNotFound:
-        worksheet = sheet.add_worksheet(title=tab_name, rows=100, cols=len(headers))
-        worksheet.append_row(headers)
+        dest_ws = sheet.worksheet(tab_name)
+        expected_fields = destination_tabs[tab_name]
+        row_data = [row.get(f"Field{j+1}", "") for j in range(len(expected_fields))]
+        dest_ws.append_row(row_data)
+        pending_ws.update_cell(i, 9, "Synced")
+    except Exception as e:
+        pending_ws.update_cell(i, 9, f"Error: {str(e)}")
 
-# Optional: Add a confirmation to Logs
-from datetime import datetime
-log_sheet = sheet.worksheet("Logs")
-log_sheet.append_row([datetime.utcnow().isoformat(), "Sync", "Headers validated and tabs ensured"])
-
-print("✅ Success: All tabs synced and headers validated.")
+# === LOG SYNC ===
+sync_log = sheet.worksheet("Sync Log")
+sync_log.append_row([datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "sync_full_sheet.py", "Success", "Processed all pending uploads"])
