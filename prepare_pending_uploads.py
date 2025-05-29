@@ -73,3 +73,4 @@ memory_tab.append_rows(updated_memory[1:], value_input_option="USER_ENTERED")
 # 🪵 Log success
 log_tab = sheet.worksheet("Sync Log")
 log_tab.append_row([now, "prepare_pending_uploads.py", "Success", f"Staged {len(staged_entries)} entries to Pending Uploads"])
+=
