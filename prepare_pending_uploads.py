@@ -26,14 +26,14 @@ for i, row in enumerate(memory_data, start=2):
     for tag, tab in category_tag_map.items():
         if tag in log:
             parts = log.replace(tag, "").strip().split(" | ")
-            total_fields = get_field_count(tab)
-            if total_fields == 0:
-                sync_log.append_row([datetime.now().isoformat(), "prepare_pending_uploads.py", "Error", f"Unknown tab: {tab} for tag: {tag}"])
-                continue
+            if not parts or parts[0].strip() == "":
+                continue  # skip empty logs
 
-            # Fixed padding logic: 6 fields max, padded if fewer
+            total_fields = get_field_count(tab)
             padded = parts + [""] * max(0, 6 - len(parts))
             row_fields = padded[:6]
+            while len(row_fields) < 6:
+                row_fields.append("")
             new_rows.append([row["Date"], tab] + row_fields + ["Pending"])
             memory_ws.update_cell(i, 2, f"[Processed] {log}")
             matched = True
