@@ -27,5 +27,8 @@ jobs:
           GOOGLE_SHEETS_CREDENTIALS: ${{ secrets.GOOGLE_SHEETS_CREDENTIALS }}
         run: echo "$GOOGLE_SHEETS_CREDENTIALS" > credentials.json
 
+      - name: Stage GPT logs to Pending Uploads
+        run: python prepare_pending_uploads.py
+
       - name: Run sync script
         run: python sync_full_sheet.py
