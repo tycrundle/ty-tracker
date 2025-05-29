@@ -12,26 +12,24 @@ sheet = client.open("Ty's Tracker")
 
 # === DESTINATION TAB FIELD MAP ===
 destination_tabs = {
-    "Addresses": ["Name", "Street Address", "City/State/ZIP", "Notes"],
-    "Birthdays  Anniversaries": ["Name", "Date", "Type", "Notes"],
-    "Agenda": ["Date", "Start Time", "End Time", "Title", "Details", "Location / Link", "Category", "Status", "Reminder", "Recurring", "Confirmed?"],
+    "Agenda": ["Date", "Start Time", "End Time", "Title", "Details", "Location_Link", "Category", "Status", "Reminder", "Recurring", "Confirmed?"],
     "To-Do": ["Task", "Due Date", "Priority", "Category", "Status", "Notes"],
-    "Finances": ["Date", "Category", "Description", "Amount", "Notes"],
-    "Books  Media": ["Title", "Type (Book/Show)", "Status", "Notes"],
-    "Notes": ["Date", "Note", "Tags"],
-    "Shopping  Wishlist": ["Item", "Category", "Priority", "Link", "Notes"],
-    "Fitness  Health": ["Date", "Activity", "Duration", "Notes"],
-    "Work  Projects": ["Project", "Task", "Due Date", "Status", "Notes"],
-    "Contacts  Networking": ["Name", "Company", "Role", "Notes", "Follow-Up Date"],
     "Travel": ["Trip", "Start Date", "End Date", "Details", "Location", "Status"],
-    "Pets": ["Name", "Type", "Care Task", "Due Date", "Notes"],
-    "Goals": ["Goal", "Start Date", "Target Date", "Progress", "Notes"],
-    "AI Requests": ["Date", "Request", "Status", "Response Notes"],
+    "Notes": ["Date", "Note", "Tags"],
+    "Addresses": ["Name", "Street Address", "City_State_ZIP", "Notes"],
+    "Shopping Wishlist": ["Item", "Category", "Priority", "Link", "Notes"],
+    "Books Media": ["Title", "Type", "Status", "Notes"],
+    "Finances": ["Date", "Category", "Description", "Amount", "Notes"],
+    "Fitness Health": ["Date", "Activity", "Duration", "Notes"],
+    "Work Projects": ["Project", "Task", "Due Date", "Status", "Notes"],
+    "Birthdays Anniversaries": ["Name", "Date", "Type", "Gift Idea", "Notes"],
+    "Contacts Networking": ["Name", "Company", "Role", "Contact Info", "Last Contacted", "Notes"],
+    "AI Requests": ["Date", "Request", "Status", "Response Summary", "Follow-Up?"],
     "Archive": ["Original Tab", "Date Archived", "Title", "Details", "Status"],
     "Logs": ["Timestamp", "Action", "Details"],
     "Meta": ["Key", "Value", "Last Updated"],
-    "Automation Logs": ["Timestamp", "Trigger", "Script", "Result"],
-    "Sync Log": ["Timestamp", "Status", "Updated Tabs", "Notes"],
+    "Automation Logs": ["Date", "Script", "Outcome", "Details"],
+    "Sync Log": ["Date", "Action", "Status", "Notes"],
     "GPT_Memory": ["Date", "Log"]
 }
 
@@ -61,7 +59,7 @@ for i, row in enumerate(pending_data, start=2):  # skip header row
 sync_log = sheet.worksheet("Sync Log")
 sync_log.append_row([
     datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    "Sync Full",
     "Success",
-    ", ".join(destination_tabs.keys()),
     "Processed all pending uploads"
 ])
